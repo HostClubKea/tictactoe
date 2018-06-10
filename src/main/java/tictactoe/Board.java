@@ -12,6 +12,9 @@ public final class Board implements Cloneable{
     private static final char EMPTY_MARK = ' ';
 
     public Board(int size) {
+        if(size < 3)
+            throw new IllegalArgumentException("Board can't be less then 3x3");
+
         this.size = size;
         this.board = new Player[size][size];
     }
@@ -29,20 +32,33 @@ public final class Board implements Cloneable{
     }
 
     public void setMark(int row, int col, Player player) {
+        validatePosition(row, col);
+        validatePositionIsEmpty(row, col);
         board[row][col] = player;
     }
 
     public Player markedBy(int row, int col){
+        validatePosition(row, col);
         return board[row][col];
     }
 
     public boolean isMarked(int row, int col){
+        validatePosition(row, col);
         return board[row][col] != null;
     }
 
-//    public boolean isMovePossible(int r, int c){
-//        return false;
-//    }
+    private void validatePosition(int row, int col){
+        if(row < 0 || row >= size)
+            throw new IllegalArgumentException("Wrong row index");
+
+        if(col < 0 || col >= size)
+            throw new IllegalArgumentException("Wrong column index");
+    }
+
+    private void validatePositionIsEmpty(int row, int col){
+        if(isMarked(row, col))
+            throw new IllegalArgumentException("Position is already marked");
+    }
 
     public boolean isDraw(){
         List<Map<Player, Integer>> boardData = collectBoardData();
@@ -78,6 +94,7 @@ public final class Board implements Cloneable{
         return new Board(this);
     }
 
+    //TODO: this could be updated on setMark only
     private List<Map<Player, Integer>> collectBoardData(){
         List<Map<Player, Integer>> list = new ArrayList<>();
 
