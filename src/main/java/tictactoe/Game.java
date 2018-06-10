@@ -8,7 +8,6 @@ public class Game {
 
     private final int boardSize;
     private final List<Player> players;
-    private Board board;
     private int turn;
 
     //Check board size,
@@ -31,35 +30,41 @@ public class Game {
         return players.get(turn++ % players.size());
     }
 
+    private boolean isGameEnd(Board board){
+        return board.hasWinner() || board.isDraw();
+    }
 
     public void play(){
-        board = new Board(boardSize);
+        Board board = new Board(boardSize);
         int turn = -1;
 
-        while (true) {
+        do {
             Player player = getNextPlayer();
-            System.out.println(String.format("%s turn:", player.getName()));
 
-            //Player receives clone of board so he can't cheat and make several moves
-            Move mp = player.nextMove(board.clone());
-            board.setMark(mp.getRow(), mp.getCol(), player);
+            while(true) {
+                System.out.println(String.format("%s turn:", player.getName()));
+                //Player receives clone of board so he can't cheat and make several moves
+                Move mp = player.nextMove(board.clone());
 
+                try {
+                    board.setMark(mp.getRow(), mp.getCol(), player);
+                    break;
+                } catch (IllegalArgumentException ex) {
+                    System.out.println(ex.getMessage());
+                    System.out.println("You have entered wrong data, please repeat your move.");
+                }
+            };
 
             printBoard(board);
+        } while (!isGameEnd(board));
 
-            if(board.hasWinner()){
-                Player winner = board.findWinner();
-                System.out.println("Winner: " + winner.getName());
-            //    gameEnd = true;
-            }
-
-            if(board.isDraw()){
-                System.out.println("THE END");
-           //     gameEnd = true;
-            }
-
-
+        if(board.hasWinner()){
+            Player winner = board.findWinner();
+            System.out.println("The End. Winner: " + winner.getName());
+        } else if(board.isDraw()){
+            System.out.println("The End. Draw");
         }
+
     }
 
     private void printBoard(Board board){
