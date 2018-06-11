@@ -1,47 +1,51 @@
 package tictactoe;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class Game {
-
     private final int boardSize;
     private final List<Player> players;
     private int turn;
 
     //Check board size,
-    public Game(int boardSize, List<Player> players){
-        if(boardSize < 3 || boardSize > 10)
-            throw new IllegalArgumentException("Board size expected to be between 3x3 and 10x10");
-
-        if(players == null || players.size() != 3)
-            throw new IllegalArgumentException("Game expected to be played by 3 players");
+    public Game(int boardSize, List<Player> players) {
+        if (players == null || players.size() <= 0)
+            throw new IllegalArgumentException("Game have to be played by someone");
 
         this.boardSize = boardSize;
+        // We don't want sudden change in players list
         this.players = new ArrayList<>(players);
     }
 
-    private Player getNextPlayer(){
-        if(turn < 0) {
+    private Player getNextPlayer() {
+        // on first turn we select random player
+        if (turn < 0) {
             Random rnd = new Random();
             turn = rnd.nextInt(players.size());
         }
+        // switching between players in the list
         return players.get(turn++ % players.size());
     }
 
-    private boolean isGameEnd(Board board){
+    private boolean isGameEnd(Board board) {
         return board.hasWinner() || board.isDraw();
     }
 
-    public void play(){
+    public void play() {
+        System.out.println(String.format("Tic Tac Toe, board: %sx%s, Players: %s", boardSize, boardSize,
+                players.stream().map(p -> p.getName()).collect(Collectors.joining(", "))));
+
         Board board = new Board(boardSize);
-        int turn = -1;
+        turn = -1;
 
         do {
             Player player = getNextPlayer();
 
-            while(true) {
+            while (true) {
                 System.out.println(String.format("%s turn:", player.getName()));
                 //Player receives clone of board so he can't cheat and make several moves
                 Move mp = player.nextMove(board.clone());
@@ -53,21 +57,21 @@ public class Game {
                     System.out.println(ex.getMessage());
                     System.out.println("You have entered wrong data, please repeat your move.");
                 }
-            };
+            }
 
             printBoard(board);
         } while (!isGameEnd(board));
 
-        if(board.hasWinner()){
+        if (board.hasWinner()) {
             Player winner = board.findWinner();
             System.out.println("The End. Winner: " + winner.getName());
-        } else if(board.isDraw()){
+        } else if (board.isDraw()) {
             System.out.println("The End. Draw");
         }
 
     }
 
-    private void printBoard(Board board){
+    private void printBoard(Board board) {
         System.out.println("Board:");
         System.out.println(board);
     }

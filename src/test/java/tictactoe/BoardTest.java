@@ -85,5 +85,5 @@ public class BoardTest {
 
         assertEquals(true, b.isDraw());
     }
-    
+
 }
